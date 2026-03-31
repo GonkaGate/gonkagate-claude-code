@@ -7,18 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: What to do (check verifies OIDC without publishing)
+        description: Manual runs only perform the OIDC preflight check
         required: true
         type: choice
         default: check
         options:
           - check
-          - publish
-      publish_ref:
-        description: Git ref to publish (e.g. tag v0.1.0). Leave empty to publish the workflow ref.
-        required: false
-        type: string
-        default: ""
 
 permissions:
   contents: read
@@ -31,8 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_ref != '' && github.event.inputs.publish_ref || github.ref }}
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
@@ -64,5 +56,5 @@ jobs:
           echo "OK: OIDC exchange succeeded for $PKG on $HOST"
 
       - name: Publish
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'publish')
+        if: github.event_name == 'push'
         run: npm publish --provenance --access public
