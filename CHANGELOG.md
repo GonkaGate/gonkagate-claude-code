@@ -13,6 +13,8 @@
 - Made local scope fail closed if `.claude/settings.local.json` is already tracked by git before secrets are written.
 - Hardened local scope against symlinked path components anywhere between the repo root and the target settings file.
 - Pinned GitHub Actions workflows to immutable commit SHAs for release pipeline hardening.
+- Restored automated npm publish dispatch after Release Please creates a new release tag.
+- Made publish reruns skip versions that are already present on npm instead of failing with a duplicate-version error.
 
 ## [0.1.1](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.0...v0.1.1) (2026-03-31)
 
