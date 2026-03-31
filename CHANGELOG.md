@@ -16,6 +16,14 @@
 - Restored automated npm publish dispatch after Release Please creates a new release tag.
 - Made publish reruns skip versions that are already present on npm instead of failing with a duplicate-version error.
 
+## [0.1.2](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.1...v0.1.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* restore automated npm publishes ([42bde87](https://github.com/GonkaGate/gonkagate-claude-code/commit/42bde8795e264c8950017aa5acff0475b4fb0c8e))
+* restore automated npm publishes ([52fcd8e](https://github.com/GonkaGate/gonkagate-claude-code/commit/52fcd8e428ccae967871aba800344dd786a048ce))
+
 ## [0.1.1](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.0...v0.1.1) (2026-03-31)
 
 
