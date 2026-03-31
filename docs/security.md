@@ -21,7 +21,9 @@ This repo does not write `.env` files and does not modify shell startup files. I
 
 ## Local scope hygiene
 
-If you choose `local` scope inside a git repository, the installer first verifies that `.claude/settings.local.json` is not already tracked by git. If it is already tracked, the installer stops instead of writing a secret into a tracked file.
+If you choose `local` scope inside a git repository, the installer first checks whether `.claude/settings.local.json` is already tracked by git. If it is already tracked, the installer offers to either stop tracking that file and continue local setup, or switch to `user` scope instead of writing a secret into a still-tracked file.
+
+If you choose the stop-tracking recovery path, the installer runs `git rm --cached` for `.claude/settings.local.json`, keeps the file in your working tree, and adds local ignore rules before writing the secret-bearing settings file. That stages the file removal from version control, which is usually the right outcome for a repo-local secrets file.
 
 For untracked local installs, the installer adds `.claude/settings.local.json` and its timestamped backup pattern to the repo's `.git/info/exclude` before writing the file so secret-bearing local settings do not immediately show up in git.
 

@@ -5,12 +5,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import process from "node:process";
 import test from "node:test";
-import { parseCliOptions } from "../src/cli.js";
+import { parseCliOptions, resolveSettingsTarget } from "../src/cli.js";
 import { createBackup } from "../src/install/backup.js";
 import { loadSettings } from "../src/install/load-settings.js";
-import { ensureLocalSettingsIgnored } from "../src/install/local-git-ignore.js";
+import { ensureLocalSettingsIgnored, stopTrackingLocalSettings } from "../src/install/local-git-ignore.js";
 import { mergeSettingsWithGonkaEnv } from "../src/install/merge-env.js";
-import { buildModelPromptConfig, promptForModel } from "../src/install/prompts.js";
+import { buildModelPromptConfig, buildTrackedLocalSettingsPromptConfig, promptForModel } from "../src/install/prompts.js";
 import { validateApiKey } from "../src/install/validate-api-key.js";
 import { writeSettings } from "../src/install/write-settings.js";
 import { CLAUDE_SETTINGS_SCHEMA_URL, GONKAGATE_BASE_URL } from "../src/constants/gateway.js";
@@ -60,6 +60,14 @@ test("promptForModel returns the default model when the prompt resolves to the d
 
   assert.equal(selectedModel.key, DEFAULT_MODEL_KEY);
   assert.equal(selectedModel.modelId, DEFAULT_MODEL.modelId);
+});
+
+test("tracked local settings recovery prompt defaults to stopping tracking", () => {
+  const promptConfig = buildTrackedLocalSettingsPromptConfig(".claude/settings.local.json");
+
+  assert.equal(promptConfig.default, "untrack");
+  assert.equal(promptConfig.theme?.indexMode, "number");
+  assert.match(promptConfig.choices[0]?.description ?? "", /git rm --cached/);
 });
 
 test("parseArgs accepts supported --model values and rejects unsupported ones", () => {
@@ -170,18 +178,59 @@ test("ensureLocalSettingsIgnored rejects a symlinked .claude directory", async (
 
 test("ensureLocalSettingsIgnored rejects a tracked local settings file", async () => {
   const directory = await mkdtemp(path.join(tmpdir(), "gonkagate-local-tracked-"));
-  const targetPath = path.join(directory, ".claude", "settings.local.json");
-
-  initGitRepo(directory);
-  await mkdir(path.dirname(targetPath), { recursive: true });
-  await writeFile(targetPath, "{\n  \"env\": {}\n}\n", "utf8");
-  execFileSync("git", ["-C", directory, "add", "-f", ".claude/settings.local.json"], { stdio: "ignore" });
-  commitAll(directory, "Add tracked local settings");
+  const targetPath = await createTrackedLocalSettingsFile(directory);
 
   await assert.rejects(
     ensureLocalSettingsIgnored(targetPath),
     /already tracked by git/
   );
+});
+
+test("stopTrackingLocalSettings removes the local settings file from the git index and adds local excludes", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "gonkagate-local-untrack-"));
+  const targetPath = await createTrackedLocalSettingsFile(directory);
+  const excludePath = path.join(directory, ".git", "info", "exclude");
+
+  await stopTrackingLocalSettings(targetPath);
+
+  assert.equal(isTrackedInGit(directory, ".claude/settings.local.json"), false);
+  assert.deepEqual(JSON.parse(await readFile(targetPath, "utf8")), { env: {} });
+
+  const excludeContents = await readFile(excludePath, "utf8");
+  const statusOutput = execFileSync("git", ["-C", directory, "status", "--short"], { encoding: "utf8" });
+
+  assert.match(excludeContents, /^\/\.claude\/settings\.local\.json$/m);
+  assert.match(excludeContents, /^\/\.claude\/settings\.local\.json\.backup-\*$/m);
+  assert.match(statusOutput, /^D  \.claude\/settings\.local\.json$/m);
+  assert.doesNotMatch(statusOutput, /\?\? \.claude\/settings\.local\.json/);
+});
+
+test("resolveSettingsTarget can switch a tracked local install to user scope", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "gonkagate-local-switch-user-"));
+  const targetPath = await createTrackedLocalSettingsFile(directory);
+
+  const resolvedTarget = await resolveSettingsTarget("local", directory, async (relativeTargetPath) => {
+    assert.equal(relativeTargetPath, ".claude/settings.local.json");
+    return "user";
+  });
+
+  assert.equal(resolvedTarget.scope, "user");
+  assert.equal(path.basename(resolvedTarget.path), "settings.json");
+  assert.equal(path.basename(path.dirname(resolvedTarget.path)), ".claude");
+  assert.equal(isTrackedInGit(directory, ".claude/settings.local.json"), true);
+  assert.deepEqual(JSON.parse(await readFile(targetPath, "utf8")), { env: {} });
+});
+
+test("resolveSettingsTarget can stop tracking a local settings file and continue locally", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "gonkagate-local-continue-"));
+  await createTrackedLocalSettingsFile(directory);
+
+  const resolvedTarget = await resolveSettingsTarget("local", directory, async () => "untrack");
+  const statusOutput = execFileSync("git", ["-C", directory, "status", "--short"], { encoding: "utf8" });
+
+  assert.equal(resolvedTarget.scope, "local");
+  assert.equal(resolvedTarget.path, path.join(directory, ".claude", "settings.local.json"));
+  assert.match(statusOutput, /^D  \.claude\/settings\.local\.json$/m);
 });
 
 test("ensureLocalSettingsIgnored rejects a symlinked path component inside the repo", async () => {
@@ -210,6 +259,27 @@ test("validateApiKey requires a gp- prefix", () => {
 
 function initGitRepo(directory: string): void {
   execFileSync("git", ["init"], { cwd: directory, stdio: "ignore" });
+}
+
+function isTrackedInGit(directory: string, relativePath: string): boolean {
+  try {
+    execFileSync("git", ["-C", directory, "ls-files", "--error-unmatch", "--", relativePath], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function createTrackedLocalSettingsFile(directory: string): Promise<string> {
+  const targetPath = path.join(directory, ".claude", "settings.local.json");
+
+  initGitRepo(directory);
+  await mkdir(path.dirname(targetPath), { recursive: true });
+  await writeFile(targetPath, "{\n  \"env\": {}\n}\n", "utf8");
+  execFileSync("git", ["-C", directory, "add", "-f", ".claude/settings.local.json"], { stdio: "ignore" });
+  commitAll(directory, "Add tracked local settings");
+
+  return targetPath;
 }
 
 function commitAll(directory: string, message: string): void {

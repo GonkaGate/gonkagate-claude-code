@@ -17,11 +17,16 @@ Recommended public flow:
 npx @gonkagate/claude-code
 ```
 
-The installer interactively prompts only for:
+The happy-path installer interactively prompts only for:
 
 - a `gp-...` API key
 - a model picker from the curated allowlist
 - install scope: `user` or `local`
+
+If the user chooses `local` scope and `.claude/settings.local.json` is already tracked by git, the installer shows a short recovery prompt so the user can either:
+
+- stop tracking `.claude/settings.local.json` and continue local setup
+- switch to `user` scope instead
 
 Everything else is fixed by product design.
 
@@ -131,6 +136,7 @@ It is responsible for:
 - selecting the scope
 - determining the target settings file
 - running local git-ignore protection for `local` scope
+- recovering tracked local settings files by offering stop-tracking or `user`-scope fallback
 - loading the current settings JSON
 - merging GonkaGate env into the existing config
 - creating a backup before write
@@ -152,6 +158,7 @@ This file contains the interactive prompts built on top of `@inquirer/prompts`:
 - hidden prompt for API key
 - model picker from the curated registry
 - scope picker
+- tracked-local-settings recovery picker when `.claude/settings.local.json` is already tracked by git
 
 The key rule here is: do not log secrets and do not turn the main UX into CLI args for secrets. Do not move back to raw keypress handling if the library-backed prompt still covers the use case.
 
@@ -207,7 +214,8 @@ This is specific to `local` scope.
 Its job is to:
 
 - find the git repository
-- verify `.claude/settings.local.json` is not already tracked by git
+- detect when `.claude/settings.local.json` is already tracked by git
+- after user consent, stop tracking `.claude/settings.local.json` before writing secrets
 - add `.claude/settings.local.json` to `.git/info/exclude` when appropriate
 - refuse symlinked path components that could redirect the local settings write outside the intended repo-local path
 
@@ -247,7 +255,7 @@ Baseline tests cover:
 3. The installer shows the curated model picker
 4. The installer asks for scope: `user` or `local`
 5. The target settings file is resolved
-6. For `local` scope, the target path is validated to stay repo-local, the installer refuses already-tracked local settings files, and an ignore entry is added to `.git/info/exclude` when possible
+6. For `local` scope, the target path is validated to stay repo-local, the installer adds an ignore entry to `.git/info/exclude` when local write proceeds, and if `.claude/settings.local.json` is already tracked by git it offers to stop tracking that file or switch to `user` scope
 7. If the settings file already exists, it is read and validated
 8. A backup is created
 9. GonkaGate env values, including the selected model, are merged into settings

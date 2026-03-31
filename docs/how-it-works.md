@@ -31,7 +31,7 @@ It does not touch any shell profile or other configuration file.
 
 For `local` scope inside a git repository, it also adds `.claude/settings.local.json` and `.claude/settings.local.json.backup-*` to `.git/info/exclude` before writing the file.
 
-For safety, local scope refuses to proceed if `.claude/settings.local.json` is already tracked by git, or if any existing path component on the way to the target is a symlink. That includes a symlinked `.claude` directory and a symlinked local settings file.
+For safety, local scope checks whether `.claude/settings.local.json` is already tracked by git. If it is, the installer offers to stop tracking that file and continue local setup, or switch to `user` scope instead. It also refuses any existing symlinked path component on the way to the target. That includes a symlinked `.claude` directory and a symlinked local settings file.
 
 ## Write behavior
 

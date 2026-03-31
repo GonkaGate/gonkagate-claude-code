@@ -3,6 +3,8 @@ import { password, select } from "@inquirer/prompts";
 import type { SupportedModel, SupportedModelKey } from "../constants/models.js";
 import type { InstallScope } from "../types/settings.js";
 
+export type TrackedLocalSettingsAction = "untrack" | "user" | "cancel";
+
 export async function promptForApiKey(): Promise<string> {
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
     throw new Error("Interactive setup requires a TTY so the API key can be entered securely.");
@@ -65,6 +67,46 @@ export async function promptForScope(
   selectPrompt: SelectPrompt<InstallScope> = select as SelectPrompt<InstallScope>
 ): Promise<InstallScope> {
   return selectPrompt(buildScopePromptConfig(defaultScope)).catch(rethrowPromptExit);
+}
+
+export function buildTrackedLocalSettingsPromptConfig(
+  relativeTargetPath: string
+): SelectPromptConfig<TrackedLocalSettingsAction> {
+  return {
+    message: `${relativeTargetPath} is already tracked by git. How should setup continue?`,
+    default: "untrack",
+    choices: [
+      {
+        value: "untrack",
+        name: "Stop tracking and continue",
+        short: "untrack",
+        description: `Run git rm --cached for ${relativeTargetPath}, keep the file locally, and add a local git exclude.`
+      },
+      {
+        value: "user",
+        name: "Switch to user scope",
+        short: "user",
+        description: "Write ~/.claude/settings.json instead and leave the repository alone."
+      },
+      {
+        value: "cancel",
+        name: "Cancel installation",
+        short: "cancel",
+        description: "Stop now without changing Claude Code settings."
+      }
+    ],
+    loop: false,
+    theme: {
+      indexMode: "number"
+    }
+  };
+}
+
+export async function promptForTrackedLocalSettingsAction(
+  relativeTargetPath: string,
+  selectPrompt: SelectPrompt<TrackedLocalSettingsAction> = select as SelectPrompt<TrackedLocalSettingsAction>
+): Promise<TrackedLocalSettingsAction> {
+  return selectPrompt(buildTrackedLocalSettingsPromptConfig(relativeTargetPath)).catch(rethrowPromptExit);
 }
 
 export function buildModelPromptConfig(
