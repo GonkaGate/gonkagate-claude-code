@@ -316,6 +316,16 @@ npm pack --dry-run
 - For local scope, do not weaken the protection against accidentally committing the local settings file
 - If you add new merge or write behavior, add a test in `test/install.test.ts`
 
+## Release Automation
+
+This repository uses `release-please` on pushes to `main`.
+
+- Releasable changes must use a conventional commit style title such as `fix: ...` or `feat: ...`
+- In this repository, the merged PR title is especially important because GitHub merge commits on `main` use that title
+- A PR title like `Add X` or `Update Y` can merge successfully but still fail to produce a release PR
+- If the goal is to ship a user-facing fix, make the PR title releasable before merge rather than trying to repair the release afterward
+- When a releasable change has already landed without a conventional title, follow up with a small releasable PR so `release-please` can cut the next release
+
 ## Areas That Require Extra Caution
 
 Pause and double-check if your change touches:
