@@ -10,7 +10,8 @@
 - Hardened local scope against symlinked `.claude` paths that could redirect secret writes outside the ignored settings path.
 - Extended local git protection to ignore timestamped backup files for `.claude/settings.local.json`.
 - Normalized backup permissions to owner-only mode so secret-bearing backups are not left world-readable.
-- Made local scope fail closed if `.claude/settings.local.json` is already tracked by git before secrets are written.
+- Hardened local scope so `.claude/settings.local.json` cannot keep tracking secrets in git before local setup proceeds.
+- Replaced the tracked-local-settings hard stop with a recovery flow that can stop tracking the file or switch to user scope without rerunning setup.
 - Hardened local scope against symlinked path components anywhere between the repo root and the target settings file.
 - Pinned GitHub Actions workflows to immutable commit SHAs for release pipeline hardening.
 - Restored automated npm publish dispatch after Release Please creates a new release tag.

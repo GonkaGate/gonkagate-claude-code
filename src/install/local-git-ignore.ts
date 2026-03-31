@@ -10,23 +10,74 @@ interface GitContext {
   repoRoot: string;
 }
 
+interface LocalSettingsGitContext {
+  gitContext: GitContext | null;
+  relativeTargetPath?: string;
+}
+
+export class TrackedLocalSettingsError extends Error {
+  readonly relativeTargetPath: string;
+  readonly repoRoot: string;
+
+  constructor(relativeTargetPath: string, repoRoot: string) {
+    super(
+      `Refusing local install because ${relativeTargetPath} is already tracked by git. Remove it from the index before writing secrets.`
+    );
+    this.name = "TrackedLocalSettingsError";
+    this.relativeTargetPath = relativeTargetPath;
+    this.repoRoot = repoRoot;
+  }
+}
+
 export async function ensureLocalSettingsIgnored(targetPath: string): Promise<void> {
+  const localSettingsContext = await getLocalSettingsGitContext(targetPath);
+
+  if (!localSettingsContext.gitContext || !localSettingsContext.relativeTargetPath) {
+    return;
+  }
+
+  const { gitContext, relativeTargetPath } = localSettingsContext;
+  await assertTargetIsNotTracked(relativeTargetPath, gitContext.repoRoot);
+  await ensureTargetIgnored(gitContext.gitDir, relativeTargetPath);
+}
+
+export async function stopTrackingLocalSettings(targetPath: string): Promise<void> {
+  const localSettingsContext = await getLocalSettingsGitContext(targetPath);
+
+  if (!localSettingsContext.gitContext || !localSettingsContext.relativeTargetPath) {
+    throw new Error("Git repository is required to stop tracking local Claude Code settings.");
+  }
+
+  const { gitContext, relativeTargetPath } = localSettingsContext;
+  await ensureTargetIgnored(gitContext.gitDir, relativeTargetPath);
+  await execFileAsync("git", ["-C", gitContext.repoRoot, "rm", "--cached", "--quiet", "--force", "--", relativeTargetPath], {
+    encoding: "utf8"
+  });
+}
+
+async function getLocalSettingsGitContext(targetPath: string): Promise<LocalSettingsGitContext> {
   const gitContext = await findGitContext(path.dirname(targetPath));
   await assertSafeLocalSettingsTarget(targetPath, gitContext?.repoRoot);
 
   if (!gitContext) {
-    return;
+    return {
+      gitContext: null
+    };
   }
 
-  const relativeTargetPath = requireRepoRelativePath(targetPath, gitContext.repoRoot);
-  await assertTargetIsNotTracked(relativeTargetPath, gitContext.repoRoot);
+  return {
+    gitContext,
+    relativeTargetPath: requireRepoRelativePath(targetPath, gitContext.repoRoot)
+  };
+}
 
+async function ensureTargetIgnored(gitDir: string, relativeTargetPath: string): Promise<void> {
   const normalizedRelativePath = relativeTargetPath.split(path.sep).join("/");
   const ignoreEntries = [
     `/${normalizedRelativePath}`,
     `/${normalizedRelativePath}.backup-*`
   ];
-  const excludePath = path.join(gitContext.gitDir, "info", "exclude");
+  const excludePath = path.join(gitDir, "info", "exclude");
   const existingContent = await readOptionalFile(excludePath);
   const existingEntries = new Set(
     existingContent
@@ -119,9 +170,7 @@ async function assertTargetIsNotTracked(relativeTargetPath: string, repoRoot: st
     await execFileAsync("git", ["-C", repoRoot, "ls-files", "--error-unmatch", "--", relativeTargetPath], {
       encoding: "utf8"
     });
-    throw new Error(
-      `Refusing local install because ${relativeTargetPath} is already tracked by git. Remove it from the index before writing secrets.`
-    );
+    throw new TrackedLocalSettingsError(relativeTargetPath, repoRoot);
   } catch (error) {
     if (isMissingGitBinaryError(error)) {
       throw new Error("Git is required to verify that local Claude Code settings are not already tracked before writing secrets.");

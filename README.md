@@ -22,6 +22,8 @@ You will be asked for:
 - a model from the supported GonkaGate list
 - setup scope: `user` or `local`
 
+If you choose `local` scope and `.claude/settings.local.json` is already tracked by git, the installer offers to stop tracking that file and continue, or switch to `user` scope instead.
+
 You need:
 
 - local `Claude Code`
@@ -53,7 +55,7 @@ It also:
 - writes settings files with owner-only permissions
 - writes backup files with owner-only permissions
 - adds `.claude/settings.local.json` and local backup files to `.git/info/exclude` for local setup inside a git repo
-- refuses local setup if `.claude/settings.local.json` is already tracked by git
+- offers to stop tracking `.claude/settings.local.json` before local setup writes secrets into a file that was already tracked by git
 - refuses local setup if the target path traverses a symlinked path component, or if `.claude` / the local settings file is a symlink
 
 ## Fixed GonkaGate Setup

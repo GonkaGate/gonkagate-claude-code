@@ -4,14 +4,15 @@ import { Command, CommanderError, Option } from "commander";
 import { DEFAULT_MODEL_KEY, SUPPORTED_MODELS, SUPPORTED_MODEL_KEYS, requireSupportedModel } from "./constants/models.js";
 import { createBackup } from "./install/backup.js";
 import { loadSettings } from "./install/load-settings.js";
-import { ensureLocalSettingsIgnored } from "./install/local-git-ignore.js";
+import { ensureLocalSettingsIgnored, stopTrackingLocalSettings, TrackedLocalSettingsError } from "./install/local-git-ignore.js";
 import { mergeSettingsWithGonkaEnv } from "./install/merge-env.js";
-import { promptForApiKey, promptForModel, promptForScope } from "./install/prompts.js";
+import { promptForApiKey, promptForModel, promptForScope, promptForTrackedLocalSettingsAction } from "./install/prompts.js";
 import { getSettingsTarget } from "./install/settings-paths.js";
 import { validateApiKey } from "./install/validate-api-key.js";
 import { writeSettings } from "./install/write-settings.js";
-import type { InstallScope } from "./types/settings.js";
+import type { InstallScope, SettingsTarget } from "./types/settings.js";
 import type { SupportedModel, SupportedModelKey } from "./constants/models.js";
+import type { TrackedLocalSettingsAction } from "./install/prompts.js";
 
 interface CliOptions {
   help: boolean;
@@ -120,6 +121,43 @@ function printSuccess(
   }
 }
 
+export async function resolveSettingsTarget(
+  scope: InstallScope,
+  cwd: string,
+  chooseTrackedLocalSettingsAction: (relativeTargetPath: string) => Promise<TrackedLocalSettingsAction> =
+    promptForTrackedLocalSettingsAction
+): Promise<SettingsTarget> {
+  const target = getSettingsTarget(scope, cwd);
+
+  if (scope !== "local") {
+    return target;
+  }
+
+  try {
+    await ensureLocalSettingsIgnored(target.path);
+    return target;
+  } catch (error) {
+    if (!(error instanceof TrackedLocalSettingsError)) {
+      throw error;
+    }
+
+    const action = await chooseTrackedLocalSettingsAction(error.relativeTargetPath);
+
+    if (action === "user") {
+      console.log("\nSwitching to user scope so the repository stays unchanged.");
+      return getSettingsTarget("user", cwd);
+    }
+
+    if (action === "cancel") {
+      throw new Error("Installation cancelled.");
+    }
+
+    await stopTrackingLocalSettings(target.path);
+    console.log(`\nStopped tracking ${error.relativeTargetPath} in git and added a local exclude.`);
+    return target;
+  }
+}
+
 export async function run(argv = process.argv.slice(2)): Promise<void> {
   const options = parseCliOptions(argv);
 
@@ -129,19 +167,15 @@ export async function run(argv = process.argv.slice(2)): Promise<void> {
   const selectedModel = options.modelKey
     ? requireSupportedModel(options.modelKey)
     : await promptForModel(SUPPORTED_MODELS, DEFAULT_MODEL_KEY);
-  const scope = options.scope ?? (await promptForScope("user"));
-  const target = getSettingsTarget(scope, process.cwd());
-
-  if (scope === "local") {
-    await ensureLocalSettingsIgnored(target.path);
-  }
+  const requestedScope = options.scope ?? (await promptForScope("user"));
+  const target = await resolveSettingsTarget(requestedScope, process.cwd());
 
   const loaded = await loadSettings(target.path);
   const mergedSettings = mergeSettingsWithGonkaEnv(loaded.settings, apiKey, selectedModel);
   const backupPath = loaded.exists ? await createBackup(target.path) : undefined;
 
   await writeSettings(target.path, mergedSettings);
-  printSuccess(target.path, scope, selectedModel, backupPath);
+  printSuccess(target.path, target.scope, selectedModel, backupPath);
 }
 
 function handleCliError(error: unknown): void {

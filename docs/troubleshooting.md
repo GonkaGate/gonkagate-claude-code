@@ -51,13 +51,23 @@ Restore from the timestamped backup next to the settings file, or fix the JSON m
 
 Rerun the installer and choose `local` scope. That writes `.claude/settings.local.json` in the current repository instead of editing your global `~/.claude/settings.json`.
 
-## Local install refused because `.claude/settings.local.json` is already tracked by git
+## `.claude/settings.local.json` is already tracked by git
 
-For `local` scope, the installer now stops if `.claude/settings.local.json` is already a tracked file in the repository.
+For `local` scope, the installer now detects when `.claude/settings.local.json` is already a tracked file in the repository and offers a recovery choice.
 
-That safety check prevents the installer from writing your API key into a file that `git status` would continue to treat as commit-ready.
+The recommended option is to stop tracking that file and continue. The installer will:
 
-Remove the file from the git index first, or use `user` scope instead, then rerun the installer.
+- run `git rm --cached` for `.claude/settings.local.json`
+- keep the file in your working tree
+- add local exclude entries so the file stays uncommitted going forward
+
+If that repository intentionally versions `.claude/settings.local.json`, choose `user` scope instead.
+
+You can still do the stop-tracking step manually if you prefer:
+
+```bash
+git rm --cached -- .claude/settings.local.json
+```
 
 ## Local install refused because the target path uses a symlink
 
