@@ -12,7 +12,7 @@
   },
   "type": "module",
   "bin": {
-    "gonkagate-claude-code": "./bin/gonkagate-claude-code.js"
+    "gonkagate-claude-code": "bin/gonkagate-claude-code.js"
   },
   "files": [
     "bin",
