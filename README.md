@@ -1,1 +1,106 @@
-# gonkagate-claude-code
+# @gonkagate/claude-code
+
+Set up Claude Code to use GonkaGate in one `npx` command.
+
+This CLI installer is for developers who already have local `Claude Code` and want to use it with GonkaGate, the gateway to Gonka Network, without editing shell profiles, exporting long env var blocks, or writing `.env` files by hand.
+
+Under the hood it configures Claude Code to use GonkaGate's Anthropic-compatible endpoint at `https://api.gonkagate.com`.
+
+It does not install `Claude Code` itself. It configures an existing local Claude Code install.
+
+## Quick Start
+
+```bash
+npx @gonkagate/claude-code
+```
+
+Need an API key first? [Create one on GonkaGate](https://gonkagate.com/en).
+
+You will be asked for:
+
+- your GonkaGate API key (`gp-...`) in a hidden interactive prompt
+- a model from the supported GonkaGate list
+- setup scope: `user` or `local`
+
+You need:
+
+- local `Claude Code`
+- Node.js 18+
+- a GonkaGate API key
+
+## Supported Model
+
+Current public Claude Code model in the curated registry:
+
+- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+
+## What It Does
+
+The tool writes Claude Code settings so you can keep running `claude` normally afterward.
+
+By default it writes to:
+
+- `~/.claude/settings.json`
+
+If you choose local scope, it writes to:
+
+- `.claude/settings.local.json`
+
+It also:
+
+- preserves unrelated Claude Code settings
+- creates a backup before overwriting an existing settings file
+- writes settings files with owner-only permissions
+- writes backup files with owner-only permissions
+- adds `.claude/settings.local.json` and local backup files to `.git/info/exclude` for local setup inside a git repo
+- refuses local setup if `.claude/settings.local.json` is already tracked by git
+- refuses local setup if the target path traverses a symlinked path component, or if `.claude` / the local settings file is a symlink
+
+## Fixed GonkaGate Setup
+
+These parts are intentionally fixed:
+
+- Base URL: `https://api.gonkagate.com`
+- Auth variable: `ANTHROPIC_AUTH_TOKEN`
+- Model choice: only from the curated supported list
+
+This tool does not ask for a custom base URL and does not accept arbitrary custom model IDs.
+
+The selected model is written into all Claude Code model env vars used by this setup flow.
+
+## Verify
+
+After setup:
+
+1. If Claude Code was previously logged directly into Anthropic, run `claude auth logout`
+2. Start Claude Code normally with `claude`
+3. Run `/status`
+4. Confirm the active gateway is `https://api.gonkagate.com`
+
+## What This Tool Does Not Do
+
+- It does not configure `claude.ai`
+- It does not install `Claude Code` itself
+- It does not edit `.zshrc`, `.bashrc`, PowerShell profiles, or other shell startup files
+- It does not write `.env` files
+- It does not support arbitrary custom model IDs
+- It does not support custom base URL overrides
+
+## Need Help?
+
+- Troubleshooting: [docs/troubleshooting.md](https://github.com/GonkaGate/gonkagate-claude-code/blob/main/docs/troubleshooting.md)
+- Security notes: [docs/security.md](https://github.com/GonkaGate/gonkagate-claude-code/blob/main/docs/security.md)
+- Internal behavior: [docs/how-it-works.md](https://github.com/GonkaGate/gonkagate-claude-code/blob/main/docs/how-it-works.md)
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Useful commands:
+
+- `npm run build`
+- `npm test`
+- `npm run ci`

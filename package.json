@@ -1,0 +1,60 @@
+{
+  "name": "@gonkagate/claude-code",
+  "version": "0.1.0",
+  "description": "CLI installer for using Claude Code with GonkaGate on Gonka Network.",
+  "homepage": "https://github.com/GonkaGate/gonkagate-claude-code#readme",
+  "bugs": {
+    "url": "https://github.com/GonkaGate/gonkagate-claude-code/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GonkaGate/gonkagate-claude-code.git"
+  },
+  "type": "module",
+  "bin": {
+    "gonkagate-claude-code": "./bin/gonkagate-claude-code.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "docs",
+    "scripts",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "prepack": "npm run build",
+    "test": "tsx --test test/**/*.test.ts",
+    "ci": "npm test && npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "gonkagate",
+    "gonka",
+    "gonka ai",
+    "gonka-network",
+    "gonka blockchain",
+    "gonka-api",
+    "gonka gateway",
+    "claude-code",
+    "claude code"
+  ],
+  "license": "Apache-2.0",
+  "packageManager": "npm@11.11.1",
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/write-file-atomic": "^4.0.3",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.10.1",
+    "commander": "^13.1.0",
+    "write-file-atomic": "^5.0.1"
+  }
+}
