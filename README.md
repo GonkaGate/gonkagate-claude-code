@@ -14,11 +14,11 @@ It does not install `Claude Code` itself. It configures an existing local Claude
 npx @gonkagate/claude-code
 ```
 
-## Demo
+## See It In Action
 
-Short walkthrough of the installer flow:
+From API key to a working Claude Code setup in one short walkthrough:
 
-[![Watch the setup demo](https://raw.githubusercontent.com/GonkaGate/gonkagate-claude-code/main/.github/assets/gonkagate-claude-code-demo.gif)](https://raw.githubusercontent.com/GonkaGate/gonkagate-claude-code/main/.github/assets/gonkagate-claude-code-demo.mp4)
+[![See the installer in action](https://raw.githubusercontent.com/GonkaGate/gonkagate-claude-code/main/.github/assets/gonkagate-claude-code-demo.gif)](https://raw.githubusercontent.com/GonkaGate/gonkagate-claude-code/main/.github/assets/gonkagate-claude-code-demo.mp4)
 
 Need an API key first? [Create one on GonkaGate](https://gonkagate.com/en).
 
