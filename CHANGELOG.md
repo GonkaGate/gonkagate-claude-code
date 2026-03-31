@@ -14,6 +14,14 @@
 - Hardened local scope against symlinked path components anywhere between the repo root and the target settings file.
 - Pinned GitHub Actions workflows to immutable commit SHAs for release pipeline hardening.
 
+## [0.1.1](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.0...v0.1.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* stop duplicate npm publishes ([1ac876a](https://github.com/GonkaGate/gonkagate-claude-code/commit/1ac876a4fb1c99bd1a1cc892e38ee2c7df3be799))
+* stop duplicate npm publishes ([58d022f](https://github.com/GonkaGate/gonkagate-claude-code/commit/58d022ff2486fa6156badc791cb236f580b68a9c))
+
 ## 0.1.0
 
 - Initial public onboarding repo for connecting local Claude Code to GonkaGate.
