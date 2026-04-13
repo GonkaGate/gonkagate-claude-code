@@ -12,6 +12,10 @@ const allowCreatePackage = process.argv.includes("--allow-create-package")
   || process.env.ALLOW_ALIAS_PACKAGE_CREATE === "1";
 const requireExistingPackage = process.argv.includes("--require-package")
   || process.env.REQUIRE_ALIAS_PACKAGE === "1";
+const disableProvenance = process.argv.includes("--no-provenance")
+  || process.env.DISABLE_ALIAS_PACKAGE_PROVENANCE === "1";
+const canUseGitHubActionsProvenance = process.env.GITHUB_ACTIONS === "true"
+  && process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN !== undefined;
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -136,8 +140,10 @@ try {
   const publishArgs = ["publish", "--access", "public"];
   if (dryRun) {
     publishArgs.push("--dry-run");
-  } else {
+  } else if (canUseGitHubActionsProvenance && !disableProvenance) {
     publishArgs.push("--provenance");
+  } else {
+    console.warn("Publishing without provenance because this is not a GitHub Actions OIDC environment.");
   }
 
   run("npm", publishArgs, { cwd: packageRoot });
