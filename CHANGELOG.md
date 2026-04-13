@@ -18,6 +18,14 @@
 - Restored automated npm publish dispatch after Release Please creates a new release tag.
 - Made publish reruns skip versions that are already present on npm instead of failing with a duplicate-version error.
 
+## [0.2.0](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.3...v0.2.0) (2026-04-13)
+
+
+### Features
+
+* add Claude Code setup alias ([3d411f5](https://github.com/GonkaGate/gonkagate-claude-code/commit/3d411f5c0cbafd84d10cf8339e9d392bd8043a26))
+* add Claude Code setup alias ([caa0711](https://github.com/GonkaGate/gonkagate-claude-code/commit/caa07114025b305a36d9a3e92deb8e565d185b15))
+
 ## [0.1.3](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.2...v0.1.3) (2026-03-31)
 
 
