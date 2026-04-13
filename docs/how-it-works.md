@@ -2,6 +2,8 @@
 
 `gonkagate-claude-code` is a small Node-based installer for local `Claude Code`.
 
+The primary package remains `@gonkagate/claude-code`. The setup-style alias package `@gonkagate/claude-code-setup` runs the same installer for consistency with the other GonkaGate agent setup packages.
+
 ## Fixed product contract
 
 These values are intentionally fixed by the installer:

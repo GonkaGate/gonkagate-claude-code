@@ -14,6 +14,12 @@ It does not install `Claude Code` itself. It configures an existing local Claude
 npx @gonkagate/claude-code
 ```
 
+Setup-style alias for consistency with the other GonkaGate agent installers:
+
+```bash
+npx @gonkagate/claude-code-setup
+```
+
 ## See It In Action
 
 From API key to a working Claude Code setup in one short walkthrough:

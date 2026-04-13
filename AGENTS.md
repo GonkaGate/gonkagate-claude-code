@@ -17,6 +17,12 @@ Recommended public flow:
 npx @gonkagate/claude-code
 ```
 
+Setup-style alias for consistency with other GonkaGate agent installers:
+
+```bash
+npx @gonkagate/claude-code-setup
+```
+
 The happy-path installer interactively prompts only for:
 
 - a `gp-...` API key
@@ -43,6 +49,7 @@ These decisions are part of the repo contract. Changing them is not a small refa
 - the default auth path is `ANTHROPIC_AUTH_TOKEN`
 - model choice comes only from a code-owned curated registry
 - the primary UX is `npx @gonkagate/claude-code`
+- the setup-style alias is `npx @gonkagate/claude-code-setup`
 - API key entry must remain interactive and hidden
 - the installer writes Claude Code settings, not shell env and not shell rc files
 - default scope is `user`
@@ -114,7 +121,8 @@ This repo does not do:
 │   └── troubleshooting.md
 ├── scripts/
 │   ├── install.ps1
-│   └── install.sh
+│   ├── install.sh
+│   └── publish-alias-package.mjs
 └── test/
     └── install.test.ts
 ```
@@ -236,6 +244,10 @@ Fallback entrypoints:
 - `install.sh`
 - `install.ps1`
 
+Alias publishing:
+
+- `publish-alias-package.mjs` builds the `@gonkagate/claude-code-setup` alias package from the current root build output
+
 They must not replace `npx` as the primary public UX.
 
 ### `test/install.test.ts`
@@ -250,7 +262,7 @@ Baseline tests cover:
 
 ## Installer Happy Path
 
-1. The user runs `npx @gonkagate/claude-code`
+1. The user runs `npx @gonkagate/claude-code` or the setup-style alias `npx @gonkagate/claude-code-setup`
 2. The installer securely prompts for a `gp-...` API key
 3. The installer shows the curated model picker
 4. The installer asks for scope: `user` or `local`
