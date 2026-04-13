@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 const ALIAS_PACKAGE_NAME = "@gonkagate/claude-code-setup";
 const ALIAS_BIN_NAME = "claude-code-setup";
 const dryRun = process.argv.includes("--dry-run");
+const allowCreatePackage = process.argv.includes("--allow-create-package")
+  || process.env.ALLOW_ALIAS_PACKAGE_CREATE === "1";
 const requireExistingPackage = process.argv.includes("--require-package")
   || process.env.REQUIRE_ALIAS_PACKAGE === "1";
 
@@ -78,15 +80,18 @@ const packageVersion = rootPackage.version;
 
 if (!dryRun && !canViewPackage(ALIAS_PACKAGE_NAME)) {
   console.warn(`${ALIAS_PACKAGE_NAME} is not visible on npm yet, or this publisher cannot access it.`);
-  console.warn(`Bootstrap ${ALIAS_PACKAGE_NAME} on npm and configure Trusted Publishing for this workflow, then rerun npm run publish:alias.`);
 
-  if (requireExistingPackage) {
+  if (allowCreatePackage) {
+    console.warn("Attempting first publish because alias package creation was explicitly allowed.");
+  } else if (requireExistingPackage) {
+    console.warn(`Bootstrap ${ALIAS_PACKAGE_NAME} on npm and configure Trusted Publishing for this workflow, then rerun npm run publish:alias.`);
     console.warn("Alias package publishing is required for this run, so failing now.");
     process.exit(1);
+  } else {
+    console.warn(`Bootstrap ${ALIAS_PACKAGE_NAME} on npm and configure Trusted Publishing for this workflow, then rerun npm run publish:alias.`);
+    console.warn("Skipping alias publish so the primary @gonkagate/claude-code release can complete.");
+    process.exit(0);
   }
-
-  console.warn("Skipping alias publish so the primary @gonkagate/claude-code release can complete.");
-  process.exit(0);
 }
 
 if (!dryRun && isVersionPublished(ALIAS_PACKAGE_NAME, packageVersion)) {
