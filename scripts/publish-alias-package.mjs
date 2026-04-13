@@ -8,6 +8,14 @@ import { fileURLToPath } from "node:url";
 const ALIAS_PACKAGE_NAME = "@gonkagate/claude-code-setup";
 const ALIAS_BIN_NAME = "claude-code-setup";
 const dryRun = process.argv.includes("--dry-run");
+const allowCreatePackage = process.argv.includes("--allow-create-package")
+  || process.env.ALLOW_ALIAS_PACKAGE_CREATE === "1";
+const requireExistingPackage = process.argv.includes("--require-package")
+  || process.env.REQUIRE_ALIAS_PACKAGE === "1";
+const disableProvenance = process.argv.includes("--no-provenance")
+  || process.env.DISABLE_ALIAS_PACKAGE_PROVENANCE === "1";
+const canUseGitHubActionsProvenance = process.env.GITHUB_ACTIONS === "true"
+  && process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN !== undefined;
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -28,25 +36,43 @@ function run(command, args, options = {}) {
   }
 }
 
-function isPublished(packageName, version) {
-  const result = spawnSync("npm", ["view", `${packageName}@${version}`, "version"], {
+function isNpmNotFound(output) {
+  return output.includes("E404") || output.includes("404 Not Found");
+}
+
+function npmView(args) {
+  const result = spawnSync("npm", ["view", ...args], {
     cwd: repoRoot,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"]
   });
 
   if (result.status === 0) {
-    return true;
+    return {
+      exists: true,
+      output: result.stdout
+    };
   }
 
   const output = `${result.stdout}\n${result.stderr}`;
-  if (output.includes("E404") || output.includes("404 Not Found")) {
-    return false;
+  if (isNpmNotFound(output)) {
+    return {
+      exists: false,
+      output
+    };
   }
 
   process.stdout.write(result.stdout);
   process.stderr.write(result.stderr);
   process.exit(result.status ?? 1);
+}
+
+function canViewPackage(packageName) {
+  return npmView([packageName, "name"]).exists;
+}
+
+function isVersionPublished(packageName, version) {
+  return npmView([`${packageName}@${version}`, "version"]).exists;
 }
 
 async function assertExists(path) {
@@ -56,7 +82,23 @@ async function assertExists(path) {
 const rootPackage = JSON.parse(await readFile(join(repoRoot, "package.json"), "utf8"));
 const packageVersion = rootPackage.version;
 
-if (!dryRun && isPublished(ALIAS_PACKAGE_NAME, packageVersion)) {
+if (!dryRun && !canViewPackage(ALIAS_PACKAGE_NAME)) {
+  console.warn(`${ALIAS_PACKAGE_NAME} is not visible on npm yet, or this publisher cannot access it.`);
+
+  if (allowCreatePackage) {
+    console.warn("Attempting first publish because alias package creation was explicitly allowed.");
+  } else if (requireExistingPackage) {
+    console.warn(`Bootstrap ${ALIAS_PACKAGE_NAME} on npm and configure Trusted Publishing for this workflow, then rerun npm run publish:alias.`);
+    console.warn("Alias package publishing is required for this run, so failing now.");
+    process.exit(1);
+  } else {
+    console.warn(`Bootstrap ${ALIAS_PACKAGE_NAME} on npm and configure Trusted Publishing for this workflow, then rerun npm run publish:alias.`);
+    console.warn("Skipping alias publish so the primary @gonkagate/claude-code release can complete.");
+    process.exit(0);
+  }
+}
+
+if (!dryRun && isVersionPublished(ALIAS_PACKAGE_NAME, packageVersion)) {
   console.log(`${ALIAS_PACKAGE_NAME}@${packageVersion} is already published; skipping alias publish.`);
   process.exit(0);
 }
@@ -98,8 +140,10 @@ try {
   const publishArgs = ["publish", "--access", "public"];
   if (dryRun) {
     publishArgs.push("--dry-run");
-  } else {
+  } else if (canUseGitHubActionsProvenance && !disableProvenance) {
     publishArgs.push("--provenance");
+  } else {
+    console.warn("Publishing without provenance because this is not a GitHub Actions OIDC environment.");
   }
 
   run("npm", publishArgs, { cwd: packageRoot });

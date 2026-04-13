@@ -247,6 +247,8 @@ Fallback entrypoints:
 Alias publishing:
 
 - `publish-alias-package.mjs` builds the `@gonkagate/claude-code-setup` alias package from the current root build output
+- if that alias package is not visible on npm yet, the script skips alias publishing so the primary `@gonkagate/claude-code` release can complete; bootstrap the alias package with `--allow-create-package` or `ALLOW_ALIAS_PACKAGE_CREATE=1`, then configure Trusted Publishing before requiring alias publish success
+- alias package publishing uses provenance only in GitHub Actions OIDC; local bootstrap publishes without provenance because npm cannot generate it outside a supported CI provider
 
 They must not replace `npx` as the primary public UX.
 

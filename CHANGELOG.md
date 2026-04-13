@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Made local alias package bootstrap publish without npm provenance because provenance requires a supported CI/OIDC provider.
+- Made alias package publishing skip cleanly until `@gonkagate/claude-code-setup` is bootstrapped on npm, with an explicit override for the first package publish.
 - Added `@gonkagate/claude-code-setup` as a setup-style alias for the existing Claude Code installer.
 - Improved npm package metadata and README copy for better package-page clarity, discovery, and onboarding.
 - Added a curated model registry and model picker to the public installer flow.
