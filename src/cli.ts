@@ -1,4 +1,5 @@
 import process from "node:process";
+import { basename } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Command, CommanderError, Option } from "commander";
 import { DEFAULT_MODEL_KEY, SUPPORTED_MODELS, SUPPORTED_MODEL_KEYS, requireSupportedModel } from "./constants/models.js";
@@ -13,6 +14,8 @@ import { writeSettings } from "./install/write-settings.js";
 import type { InstallScope, SettingsTarget } from "./types/settings.js";
 import type { SupportedModel, SupportedModelKey } from "./constants/models.js";
 import type { TrackedLocalSettingsAction } from "./install/prompts.js";
+
+const DEFAULT_COMMAND_NAME = "gonkagate-claude-code";
 
 interface CliOptions {
   help: boolean;
@@ -37,14 +40,14 @@ function rejectApiKeyArgs(argv: string[]): void {
   }
 }
 
-function createProgram(output?: ProgramOutput): Command {
+function createProgram(output?: ProgramOutput, commandName = DEFAULT_COMMAND_NAME): Command {
   const supportedModelLines = SUPPORTED_MODELS.map((model) => {
     const defaultSuffix = model.key === DEFAULT_MODEL_KEY ? " (default)" : "";
     return `  ${model.key}  ${model.displayName}${defaultSuffix}`;
   }).join("\n");
 
   const program = new Command()
-    .name("gonkagate-claude-code")
+    .name(commandName)
     .description("GonkaGate Claude Code installer")
     .addOption(
       new Option("--model <model-key>", "Skip the model prompt with a curated supported model.").choices(SUPPORTED_MODEL_KEYS)
@@ -57,6 +60,7 @@ function createProgram(output?: ProgramOutput): Command {
       `
 Examples:
   npx @gonkagate/claude-code
+  npx @gonkagate/claude-code-setup
   npx @gonkagate/claude-code --model ${DEFAULT_MODEL_KEY}
   npx @gonkagate/claude-code --scope local
 
@@ -73,11 +77,11 @@ ${supportedModelLines}
   return program;
 }
 
-export function parseCliOptions(argv: string[], output?: ProgramOutput): CliOptions {
+export function parseCliOptions(argv: string[], output?: ProgramOutput, commandName = DEFAULT_COMMAND_NAME): CliOptions {
   rejectApiKeyArgs(argv);
 
-  const program = createProgram(output);
-  program.parse(["node", "gonkagate-claude-code", ...argv]);
+  const program = createProgram(output, commandName);
+  program.parse(["node", commandName, ...argv]);
 
   const options = program.opts<ParsedProgramOptions>();
   return {
@@ -86,6 +90,13 @@ export function parseCliOptions(argv: string[], output?: ProgramOutput): CliOpti
     scope: options.scope,
     modelKey: options.model
   };
+}
+
+function getCommandNameFromArgv(): string {
+  const commandName = process.argv[1] === undefined
+    ? DEFAULT_COMMAND_NAME
+    : basename(process.argv[1]).replace(/\.(?:js|ts)$/, "");
+  return commandName === "cli" ? DEFAULT_COMMAND_NAME : commandName;
 }
 
 function printIntro(): void {
@@ -158,8 +169,8 @@ export async function resolveSettingsTarget(
   }
 }
 
-export async function run(argv = process.argv.slice(2)): Promise<void> {
-  const options = parseCliOptions(argv);
+export async function run(argv = process.argv.slice(2), commandName = getCommandNameFromArgv()): Promise<void> {
+  const options = parseCliOptions(argv, undefined, commandName);
 
   printIntro();
 

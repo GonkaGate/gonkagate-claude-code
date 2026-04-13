@@ -8,6 +8,8 @@ The recommended install flow is interactive:
 npx @gonkagate/claude-code
 ```
 
+The setup-style alias `npx @gonkagate/claude-code-setup` runs the same interactive installer.
+
 The installer asks for the API key through a hidden prompt. It intentionally rejects `--api-key ...` arguments so secrets do not end up in shell history or process lists.
 
 ## Where the key is stored

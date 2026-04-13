@@ -39,6 +39,12 @@ You can also skip the interactive model prompt with:
 npx @gonkagate/claude-code --model <model-key>
 ```
 
+The setup-style alias accepts the same options:
+
+```bash
+npx @gonkagate/claude-code-setup --model <model-key>
+```
+
 Only current curated keys are accepted.
 
 ## Corrupted settings file

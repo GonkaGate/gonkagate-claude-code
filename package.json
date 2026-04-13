@@ -12,6 +12,7 @@
   },
   "type": "module",
   "bin": {
+    "claude-code-setup": "bin/gonkagate-claude-code.js",
     "gonkagate-claude-code": "bin/gonkagate-claude-code.js"
   },
   "files": [
@@ -27,6 +28,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/cli.ts",
     "prepack": "npm run build",
+    "publish:alias": "node scripts/publish-alias-package.mjs",
     "test": "node scripts/run-tests.mjs",
     "ci": "npm test && npm run build"
   },
@@ -42,7 +44,9 @@
     "gonka-api",
     "gonka gateway",
     "claude-code",
-    "claude code"
+    "claude code",
+    "claude-code-setup",
+    "setup"
   ],
   "license": "Apache-2.0",
   "packageManager": "npm@11.11.1",
