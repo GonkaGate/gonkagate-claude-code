@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Made alias package publishing skip cleanly until `@gonkagate/claude-code-setup` is bootstrapped on npm.
 - Added `@gonkagate/claude-code-setup` as a setup-style alias for the existing Claude Code installer.
 - Improved npm package metadata and README copy for better package-page clarity, discovery, and onboarding.
 - Added a curated model registry and model picker to the public installer flow.

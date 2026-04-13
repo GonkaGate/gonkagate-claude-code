@@ -247,6 +247,7 @@ Fallback entrypoints:
 Alias publishing:
 
 - `publish-alias-package.mjs` builds the `@gonkagate/claude-code-setup` alias package from the current root build output
+- if that alias package is not visible on npm yet, the script skips alias publishing so the primary `@gonkagate/claude-code` release can complete; bootstrap the alias package and configure Trusted Publishing before requiring alias publish success
 
 They must not replace `npx` as the primary public UX.
 
