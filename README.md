@@ -2,23 +2,20 @@
 
 Set up Claude Code to use GonkaGate in one `npx` command.
 
-This CLI installer is for developers who already have local `Claude Code` and want to use it with GonkaGate, the gateway to Gonka Network, without editing shell profiles, exporting long env var blocks, or writing `.env` files by hand.
-
-Under the hood it configures Claude Code to use GonkaGate's Anthropic-compatible endpoint at `https://api.gonkagate.com`.
-
-It does not install `Claude Code` itself. It configures an existing local Claude Code install.
-
-## Quick Start
-
 ```bash
 npx @gonkagate/claude-code
 ```
 
-Setup-style alias for consistency with the other GonkaGate agent installers:
+![Package](https://img.shields.io/badge/package-%40gonkagate%2Fclaude--code-6E63FF?style=flat-square)
+![Node](https://img.shields.io/badge/node-%3E%3D18-4DA2FF?style=flat-square)
+![License](https://img.shields.io/badge/license-Apache--2.0-2A2A2A?style=flat-square)
 
-```bash
-npx @gonkagate/claude-code-setup
-```
+[![Website](https://img.shields.io/badge/Website-gonkagate.com-111827?style=flat-square)](https://gonkagate.com/en)
+[![Docs](https://img.shields.io/badge/Docs-API%20Guides-2563EB?style=flat-square)](https://gonkagate.com/en/docs)
+[![API%20Key](https://img.shields.io/badge/API%20Key-Dashboard-F97316?style=flat-square)](https://gonkagate.com/en/register)
+[![Telegram](https://img.shields.io/badge/Telegram-%40gonkagate-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/gonkagate)
+[![X](https://img.shields.io/badge/X-%40gonkagate-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/gonkagate)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-GonkaGate-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/gonkagate)
 
 ## See It In Action
 
@@ -27,6 +24,21 @@ From API key to a working Claude Code setup in one short walkthrough:
 [![See the installer in action](https://raw.githubusercontent.com/GonkaGate/gonkagate-claude-code/main/.github/assets/gonkagate-claude-code-demo.gif)](https://raw.githubusercontent.com/GonkaGate/gonkagate-claude-code/main/.github/assets/gonkagate-claude-code-demo.mp4)
 
 Need an API key first? [Create one on GonkaGate](https://gonkagate.com/en).
+
+## Overview
+
+`@gonkagate/claude-code` is for developers who already have local `Claude Code`
+and want to use it with GonkaGate without editing shell profiles, exporting
+long env var blocks, or writing `.env` files by hand.
+
+Under the hood it configures Claude Code to use GonkaGate's Anthropic-
+compatible endpoint at `https://api.gonkagate.com`.
+
+It does not install `Claude Code` itself. It configures an existing local
+Claude Code install.
+
+For setup-style naming consistency, the alias
+`npx @gonkagate/claude-code-setup` runs the same installer.
 
 You will be asked for:
 
