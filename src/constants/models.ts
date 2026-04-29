@@ -13,6 +13,13 @@ const curatedModelRegistry = [
     modelId: "qwen/qwen3-235b-a22b-instruct-2507-fp8",
     description: "Current GonkaGate public Claude Code model.",
     isDefault: true
+  },
+  {
+    key: "kimi-k2.6",
+    displayName: "MoonshotAI Kimi K2.6",
+    modelId: "moonshotai/Kimi-K2.6",
+    description: "GonkaGate public Claude Code model.",
+    isDefault: false
   }
 ] as const satisfies readonly SupportedModelDefinition[];
 
