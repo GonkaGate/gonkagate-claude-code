@@ -54,11 +54,12 @@ You need:
 - Node.js 18+
 - a GonkaGate API key
 
-## Supported Model
+## Supported Models
 
-Current public Claude Code model in the curated registry:
+Current public Claude Code models in the curated registry:
 
 - `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+- `kimi-k2.6` -> `moonshotai/Kimi-K2.6` (default)
 
 ## What It Does
 

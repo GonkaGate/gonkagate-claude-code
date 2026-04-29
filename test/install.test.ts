@@ -14,7 +14,7 @@ import { buildModelPromptConfig, buildTrackedLocalSettingsPromptConfig, promptFo
 import { validateApiKey } from "../src/install/validate-api-key.js";
 import { writeSettings } from "../src/install/write-settings.js";
 import { CLAUDE_SETTINGS_SCHEMA_URL, GONKAGATE_BASE_URL } from "../src/constants/gateway.js";
-import { DEFAULT_MODEL, DEFAULT_MODEL_KEY } from "../src/constants/models.js";
+import { DEFAULT_MODEL, DEFAULT_MODEL_KEY, requireSupportedModel } from "../src/constants/models.js";
 
 test("mergeSettingsWithGonkaEnv preserves unrelated settings and updates gateway env", () => {
   const merged = mergeSettingsWithGonkaEnv(
@@ -79,6 +79,12 @@ test("parseArgs accepts supported --model values and rejects unsupported ones", 
   assert.equal(parseCliOptions(["--model", DEFAULT_MODEL_KEY], silentOutput).modelKey, DEFAULT_MODEL_KEY);
   assert.equal(parseCliOptions([`--model=${DEFAULT_MODEL_KEY}`], silentOutput).modelKey, DEFAULT_MODEL_KEY);
   assert.throws(() => parseCliOptions(["--model", "not-supported"], silentOutput), /Allowed choices are/);
+});
+
+test("supported model registry includes kimi-k2.6", () => {
+  const model = requireSupportedModel("kimi-k2.6");
+
+  assert.equal(model.modelId, "moonshotai/Kimi-K2.6");
 });
 
 test("loadSettings rejects invalid JSON instead of overwriting it", async () => {

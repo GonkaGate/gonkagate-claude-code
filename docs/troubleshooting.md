@@ -14,9 +14,10 @@ The installer writes Claude Code settings, but an existing direct login can stil
 
 This installer writes the selected model from its curated GonkaGate-supported registry.
 
-Today that curated list contains one option:
+Today that curated list contains:
 
 - `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+- `kimi-k2.6` -> `moonshotai/Kimi-K2.6` (default)
 
 If that model is unavailable, the likely cause is a backend deployment or model availability mismatch. This installer does not expose custom base URL or arbitrary custom model overrides, so the right next step is GonkaGate support or the backend troubleshooting docs in `gonka-proxy`.
 

@@ -12,9 +12,10 @@ These values are intentionally fixed by the installer:
 - Auth variable: `ANTHROPIC_AUTH_TOKEN`
 - Model selection comes only from a curated in-repo allowlist
 
-Today the curated public Claude Code model registry contains one supported entry:
+Today the curated public Claude Code model registry contains:
 
-- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8` (default, current only option)
+- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+- `kimi-k2.6` -> `moonshotai/Kimi-K2.6` (default)
 
 Users provide only:
 
