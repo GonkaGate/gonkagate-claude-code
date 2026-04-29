@@ -21,6 +21,18 @@
 - Restored automated npm publish dispatch after Release Please creates a new release tag.
 - Made publish reruns skip versions that are already present on npm instead of failing with a duplicate-version error.
 
+## [0.3.0](https://github.com/GonkaGate/claude-code-setup/compare/v0.2.1...v0.3.0) (2026-04-29)
+
+
+### Features
+
+* add kimi-k2.6 to curated model registry ([f19cfc7](https://github.com/GonkaGate/claude-code-setup/commit/f19cfc78cc5246699e065b045a7ec40309694e02))
+
+
+### Bug Fixes
+
+* make kimi-k2.6 the default curated model ([9a444e0](https://github.com/GonkaGate/claude-code-setup/commit/9a444e035c8f5be5ab5bc13770b58457f316276a))
+
 ## [0.2.1](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.2.0...v0.2.1) (2026-04-13)
 
 
