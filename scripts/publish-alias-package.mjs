@@ -82,11 +82,6 @@ async function assertExists(path) {
 const rootPackage = JSON.parse(await readFile(join(repoRoot, "package.json"), "utf8"));
 const packageVersion = rootPackage.version;
 
-if (isVersionPublished(ALIAS_PACKAGE_NAME, packageVersion)) {
-  console.log(`${ALIAS_PACKAGE_NAME}@${packageVersion} is already published; skipping alias publish.`);
-  process.exit(0);
-}
-
 if (!dryRun && !canViewPackage(ALIAS_PACKAGE_NAME)) {
   console.warn(`${ALIAS_PACKAGE_NAME} is not visible on npm yet, or this publisher cannot access it.`);
 
@@ -101,6 +96,11 @@ if (!dryRun && !canViewPackage(ALIAS_PACKAGE_NAME)) {
     console.warn("Skipping alias publish so the primary @gonkagate/claude-code release can complete.");
     process.exit(0);
   }
+}
+
+if (!dryRun && isVersionPublished(ALIAS_PACKAGE_NAME, packageVersion)) {
+  console.log(`${ALIAS_PACKAGE_NAME}@${packageVersion} is already published; skipping alias publish.`);
+  process.exit(0);
 }
 
 for (const path of ["bin", "dist", "docs", "README.md", "CHANGELOG.md", "LICENSE"]) {

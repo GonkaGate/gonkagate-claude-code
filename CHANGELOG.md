@@ -21,6 +21,15 @@
 - Restored automated npm publish dispatch after Release Please creates a new release tag.
 - Made publish reruns skip versions that are already present on npm instead of failing with a duplicate-version error.
 
+## [0.2.1](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.2.0...v0.2.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* allow alias publish bootstrap override ([423e3b3](https://github.com/GonkaGate/gonkagate-claude-code/commit/423e3b32e9d604586624296848db3ea1923a7110))
+* omit provenance for local alias bootstrap ([9529587](https://github.com/GonkaGate/gonkagate-claude-code/commit/95295871b2b37f2742fbe76af3193c1ee8cd2e2f))
+* skip alias publish before npm bootstrap ([f4c4c2a](https://github.com/GonkaGate/gonkagate-claude-code/commit/f4c4c2aaad7cf1c0584d5bcd88751e63e2ffb8da))
+
 ## [0.2.0](https://github.com/GonkaGate/gonkagate-claude-code/compare/v0.1.3...v0.2.0) (2026-04-13)
 
 
