@@ -58,8 +58,8 @@ You need:
 
 Current public Claude Code models in the curated registry:
 
-- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8` (default)
-- `kimi-k2.6` -> `moonshotai/Kimi-K2.6`
+- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+- `kimi-k2.6` -> `moonshotai/Kimi-K2.6` (default)
 
 ## What It Does
 

@@ -14,8 +14,8 @@ These values are intentionally fixed by the installer:
 
 Today the curated public Claude Code model registry contains:
 
-- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8` (default)
-- `kimi-k2.6` -> `moonshotai/Kimi-K2.6`
+- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+- `kimi-k2.6` -> `moonshotai/Kimi-K2.6` (default)
 
 Users provide only:
 

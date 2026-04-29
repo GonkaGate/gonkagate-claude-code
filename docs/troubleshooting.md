@@ -16,8 +16,8 @@ This installer writes the selected model from its curated GonkaGate-supported re
 
 Today that curated list contains:
 
-- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8` (default)
-- `kimi-k2.6` -> `moonshotai/Kimi-K2.6`
+- `qwen3-235b` -> `qwen/qwen3-235b-a22b-instruct-2507-fp8`
+- `kimi-k2.6` -> `moonshotai/Kimi-K2.6` (default)
 
 If that model is unavailable, the likely cause is a backend deployment or model availability mismatch. This installer does not expose custom base URL or arbitrary custom model overrides, so the right next step is GonkaGate support or the backend troubleshooting docs in `gonka-proxy`.
 
